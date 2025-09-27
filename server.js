@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
@@ -43,7 +42,7 @@ function getSlotType() {
   const totalMinutesIST = totalMinutesUTC + istOffset;
 
   const morningStart = 8 * 60 + 30;  // 08:30 AM
-  const morningEnd = 16 * 60;   // 02:00 PM
+  const morningEnd = 16 * 60;        // 04:00 PM
   const eveningStart = 16 * 60 + 30; // 04:30 PM
   const eveningEnd = 22 * 60;        // 10:00 PM
 
@@ -63,32 +62,32 @@ function getClinicVisitTime(slotType, tokenNumber) {
 
   if (slotType === "Morning Slot Booked") {
     startTime = new Date();
-    startTime.setHours(10, 45, 0, 0); // 10:45 AM
+    startTime.setHours(10, 45, 0, 0); // Clinic morning start
     endTime = new Date();
-    endTime.setHours(16, 0, 0, 0); // 2:00 PM
+    endTime.setHours(16, 0, 0, 0); // Clinic morning end at 4:00 PM
   } else if (slotType === "Evening Slot Booked") {
     startTime = new Date();
-    startTime.setHours(18, 45, 0, 0); // 6:45 PM
+    startTime.setHours(18, 45, 0, 0); // Clinic evening start
     endTime = new Date();
-    endTime.setHours(22, 0, 0, 0); // 10:00 PM
+    endTime.setHours(22, 0, 0, 0); // Clinic evening end at 10:00 PM
   } else {
     return null;
   }
 
-  const totalMinutes = (endTime - startTime) / (1000 * 60); // total clinic minutes
-  const interval = Math.floor(totalMinutes / maxAppointments); // per patient
+  const totalMinutes = (endTime - startTime) / (1000 * 60);
+  const interval = Math.floor(totalMinutes / maxAppointments);
 
-  // Adjust startTime to current time if booking after clinic opening
+  // Adjust startTime if booking late
   if (now > startTime) {
     startTime = now;
   }
 
   let visitTime;
   if (tokenNumber > maxAppointments) {
-    visitTime = endTime; // cap at clinic closing time
+    visitTime = endTime;
   } else {
     visitTime = new Date(startTime.getTime() + interval * (tokenNumber - 1) * 60000);
-    if (visitTime > endTime) visitTime = endTime; // never exceed closing
+    if (visitTime > endTime) visitTime = endTime;
   }
 
   const hours = visitTime.getHours().toString().padStart(2, "0");
@@ -108,11 +107,11 @@ app.post('/submit', (req, res) => {
   if (!slot_type) {
     return res.status(403).json({
       status: 'error',
-      message: 'Appointments are only accepted between 8:30 AM - 2:00 PM or 4:30 PM - 10:00 PM IST'
+      message: 'Appointments are only accepted between 8:30 AM - 4:00 PM or 4:30 PM - 10:00 PM IST'
     });
   }
 
-  // Count existing appointments
+  // Count existing appointments for this slot
   const countSql = 'SELECT COUNT(*) AS count FROM feedback WHERE slot_type = ?';
   db.query(countSql, [slot_type], (err, result) => {
     if (err) {
