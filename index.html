@@ -531,7 +531,9 @@ function submitFeedback() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
-            alert(`✅ Appointment booked successfully!\nYour Appointment Number: ${data.appointmentNumber}`);
+            alert(`✅ Appointment booked successfully!
+Your Appointment Number: ${data.appointmentNumber}
+${data.slot_type}`);
             document.getElementById("feedbackForm").reset();
         } else {
             alert("❌ " + data.message);
@@ -545,10 +547,12 @@ function submitFeedback() {
 </script>
 
 
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="script.js"></script>
 
 </body>
 </html>
+
 
 
