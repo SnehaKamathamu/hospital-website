@@ -980,17 +980,14 @@ button[class ^= navbar]:hover{
 }
 
 
-/* Pointer to highlight feedback form */
 .appointment-pointer {
     position: fixed;
-    bottom: 90px; /* above the floating feedback button */
-    right: 20px;
+    bottom: 80px; /* slightly above the floating button */
+    right: 20px; /* align with floating button */
     display: flex;
-    flex-direction: column;
     align-items: center;
     cursor: pointer;
-    z-index: 10000;
-    animation: bounce 2s infinite;
+    z-index: 9999;
 }
 
 .pointer-text {
@@ -998,26 +995,22 @@ button[class ^= navbar]:hover{
     color: white;
     padding: 8px 12px;
     border-radius: 25px;
+    font-weight: 600;
     font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    white-space: nowrap;
+    margin-right: 5px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 }
 
 .pointer-arrow {
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 12px solid #085db7;
-    margin-top: -2px;
+    width: 0; 
+    height: 0; 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #085db7; /* same color as the bubble */
+    margin-left: -2px; /* tweak so arrow touches bubble */
 }
 
-/* Bounce animation for attention */
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
 
 
 /* Inputs */
@@ -1414,5 +1407,6 @@ button[class ^= navbar]:hover{
     -o-transition: none!important;
     transition: none!important;
 }
+
 
 
