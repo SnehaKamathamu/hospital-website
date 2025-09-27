@@ -13,22 +13,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // MySQL connection
-// const db = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',        // 🔹 replace with your MySQL username
-//     password: 'ribhav123', // 🔹 replace with your MySQL password
-//     database: 'clinic_feedback'
-// });
-
 const db = mysql.createPool({
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE, 
   port: process.env.MYSQLPORT,
-  ssl: {
-    rejectUnauthorized: false   
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
 db.getConnection((err, connection) => {
@@ -40,35 +31,64 @@ db.getConnection((err, connection) => {
   }
 });
 
-// Serve your HTML + JS files (since both are in root)
+// Serve static files
 app.use(express.static(path.join(__dirname)));
+
+// Helper function: classify slot based on current time
+function getSlotType() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const totalMinutes = hours * 60 + minutes;
+
+  const morningStart = 8 * 60 + 30;  // 08:30 AM
+  const morningEnd   = 14 * 60;      // 02:00 PM
+  const eveningStart = 16 * 60 + 30; // 04:30 PM
+  const eveningEnd   = 22 * 60;      // 10:00 PM
+
+  if (totalMinutes >= morningStart && totalMinutes <= morningEnd) {
+    return "Morning Slot Booked";
+  } else if (totalMinutes >= eveningStart && totalMinutes <= eveningEnd) {
+    return "Evening Slot Booked";
+  } else {
+    return null; // outside valid slots
+  }
+}
 
 // Route to handle feedback submission
 app.post('/submit', (req, res) => {
-    console.log("📩 Received feedback:", req.body);  // 👈 debug log
-    const { name, message } = req.body;
+  const { name, message } = req.body;
 
-    if (!name || !message) {
-        return res.status(400).json({ status: 'error', message: 'Name and message are required' });
+  if (!name || !message) {
+    return res.status(400).json({ status: 'error', message: 'Name and message are required' });
+  }
+
+  // Determine slot
+  const slot_type = getSlotType();
+  if (!slot_type) {
+    return res.status(403).json({
+      status: 'error',
+      message: 'Appointments are only accepted between 8:30 AM - 2:00 PM or 4:30 PM - 10:00 PM'
+    });
+  }
+
+  const sql = 'INSERT INTO feedback (name, message, slot_type) VALUES (?, ?, ?)';
+  db.query(sql, [name, message, slot_type], (err, result) => {
+    if (err) {
+      console.error('❌ Error inserting feedback:', err);
+      return res.status(500).json({ status: 'error', message: 'Database error' });
     }
 
-    const sql = 'INSERT INTO feedback (name, message) VALUES (?, ?)';
-    db.query(sql, [name, message], (err, result) => {
-        if (err) {
-            console.error('❌ Error inserting feedback:', err);
-            return res.status(500).json({ status: 'error', message: 'Database error' });
-        }
-
-        // ✅ return appointment number (auto-increment id)
-        res.json({ 
-            status: 'success', 
-            message: 'Feedback saved!',
-            appointmentNumber: result.insertId 
-        });
+    res.json({
+      status: 'success',
+      message: `${slot_type} booked successfully!`,
+      appointmentNumber: result.insertId,
+      slot_type: slot_type
     });
+  });
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
