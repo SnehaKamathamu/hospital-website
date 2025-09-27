@@ -979,6 +979,47 @@ button[class ^= navbar]:hover{
   cursor: pointer;
 }
 
+
+/* Pointer to highlight feedback form */
+.appointment-pointer {
+    position: fixed;
+    bottom: 90px; /* above the floating feedback button */
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10000;
+    animation: bounce 2s infinite;
+}
+
+.pointer-text {
+    background-color: #085db7;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.pointer-arrow {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #085db7;
+    margin-top: -2px;
+}
+
+/* Bounce animation for attention */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+
 /* Inputs */
 .feedback-box input,
 .feedback-box textarea {
@@ -1373,4 +1414,5 @@ button[class ^= navbar]:hover{
     -o-transition: none!important;
     transition: none!important;
 }
+
 
