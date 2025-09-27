@@ -36,10 +36,11 @@ app.use(express.static(path.join(__dirname)));
 
 // Helper: classify slot based on IST
 function getSlotType() {
-  const now = new Date();
-  const istOffset = 5.5 * 60; // minutes
-  const totalMinutesUTC = now.getUTCHours() * 60 + now.getUTCMinutes();
-  const totalMinutesIST = totalMinutesUTC + istOffset;
+  const nowUTC = new Date();
+  const istOffset = 5.5 * 60; // in minutes
+  const nowIST = new Date(nowUTC.getTime() + istOffset * 60000);
+
+  const totalMinutesIST = nowIST.getHours() * 60 + nowIST.getMinutes();
 
   const morningStart = 8 * 60 + 30;  // 08:30 AM
   const morningEnd = 16 * 60;        // 04:00 PM
@@ -55,32 +56,35 @@ function getSlotType() {
   }
 }
 
-// Helper: assign clinic visit time
+// Helper: assign clinic visit time in IST
 function getClinicVisitTime(slotType, tokenNumber) {
-  const now = new Date();
-  let startTime, endTime, maxAppointments = 40;
+  const nowUTC = new Date();
+  const istOffset = 5.5 * 60; // minutes
+  const nowIST = new Date(nowUTC.getTime() + istOffset * 60000);
+
+  let startHours, startMinutes, endHours, endMinutes, maxAppointments = 40;
 
   if (slotType === "Morning Slot Booked") {
-    startTime = new Date();
-    startTime.setHours(10, 45, 0, 0); // Clinic morning start
-    endTime = new Date();
-    endTime.setHours(16, 0, 0, 0); // Clinic morning end at 4:00 PM
+    startHours = 10; startMinutes = 45;
+    endHours = 16; endMinutes = 0;
   } else if (slotType === "Evening Slot Booked") {
-    startTime = new Date();
-    startTime.setHours(18, 45, 0, 0); // Clinic evening start
-    endTime = new Date();
-    endTime.setHours(22, 0, 0, 0); // Clinic evening end at 10:00 PM
+    startHours = 18; startMinutes = 45;
+    endHours = 22; endMinutes = 0;
   } else {
     return null;
   }
 
+  let startTime = new Date(nowIST);
+  startTime.setHours(startHours, startMinutes, 0, 0);
+
+  let endTime = new Date(nowIST);
+  endTime.setHours(endHours, endMinutes, 0, 0);
+
+  // If booking is late, adjust startTime to now
+  if (nowIST > startTime) startTime = nowIST;
+
   const totalMinutes = (endTime - startTime) / (1000 * 60);
   const interval = Math.floor(totalMinutes / maxAppointments);
-
-  // Adjust startTime if booking late
-  if (now > startTime) {
-    startTime = now;
-  }
 
   let visitTime;
   if (tokenNumber > maxAppointments) {
