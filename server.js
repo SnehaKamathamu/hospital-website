@@ -34,21 +34,23 @@ db.getConnection((err, connection) => {
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Helper function: classify slot based on current time
+// Helper function: classify slot based on IST
 function getSlotType() {
   const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
 
-  const morningStart = 8 * 60 + 30;  // 08:30 AM
-  const morningEnd   = 14 * 60;      // 02:00 PM
-  const eveningStart = 16 * 60 + 30; // 04:30 PM
-  const eveningEnd   = 22 * 60;      // 10:00 PM
+  // Convert UTC to IST (+5:30)
+  const istOffset = 5.5 * 60; // in minutes
+  const totalMinutesUTC = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const totalMinutesIST = totalMinutesUTC + istOffset;
 
-  if (totalMinutes >= morningStart && totalMinutes <= morningEnd) {
+  const morningStart = 8 * 60 + 30;  // 08:30 AM IST
+  const morningEnd   = 14 * 60;      // 02:00 PM IST
+  const eveningStart = 16 * 60 + 30; // 04:30 PM IST
+  const eveningEnd   = 22 * 60;      // 10:00 PM IST
+
+  if (totalMinutesIST >= morningStart && totalMinutesIST <= morningEnd) {
     return "Morning Slot Booked";
-  } else if (totalMinutes >= eveningStart && totalMinutes <= eveningEnd) {
+  } else if (totalMinutesIST >= eveningStart && totalMinutesIST <= eveningEnd) {
     return "Evening Slot Booked";
   } else {
     return null; // outside valid slots
@@ -68,7 +70,7 @@ app.post('/submit', (req, res) => {
   if (!slot_type) {
     return res.status(403).json({
       status: 'error',
-      message: 'Appointments are only accepted between 8:30 AM - 2:00 PM or 4:30 PM - 10:00 PM'
+      message: 'Appointments are only accepted between 8:30 AM - 2:00 PM or 4:30 PM - 10:00 PM IST'
     });
   }
 
