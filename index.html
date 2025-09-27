@@ -529,6 +529,12 @@ function submitFeedback() {
         message: document.getElementById("message").value
     };
 
+    // Validate input
+    if (!formData.name || !formData.message) {
+        alert("❌ Please enter both name and message!");
+        return;
+    }
+
     fetch("https://hospital-website-realtime-production.up.railway.app/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -537,12 +543,16 @@ function submitFeedback() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
+            // Show appointment details including clinic visit time
             alert(`✅ Appointment booked successfully!
 Your Appointment Token Number: ${data.appointmentNumber}
 ${data.slot_type}
 🕒 Clinic Visit Time: ${data.clinicTime}`);
+
+            // Reset form after successful submission
             document.getElementById("feedbackForm").reset();
         } else {
+            // Show error message from server
             alert("❌ " + data.message);
         }
     })
@@ -557,11 +567,13 @@ ${data.slot_type}
 
 
 
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="script.js"></script>
 
 </body>
 </html>
+
 
 
 
