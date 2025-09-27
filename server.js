@@ -43,7 +43,7 @@ function getSlotType() {
   const totalMinutesIST = nowIST.getHours() * 60 + nowIST.getMinutes();
 
   const morningStart = 8 * 60 + 30;  // 08:30 AM
-  const morningEnd = 16 * 60;        // 04:00 PM
+  const morningEnd = 14 * 60;        // 04:00 PM
   const eveningStart = 16 * 60 + 30; // 04:30 PM
   const eveningEnd = 22 * 60;        // 10:00 PM
 
@@ -66,7 +66,7 @@ function getClinicVisitTime(slotType, tokenNumber) {
 
   if (slotType === "Morning Slot Booked") {
     startHours = 10; startMinutes = 45;
-    endHours = 16; endMinutes = 0;
+    endHours = 14; endMinutes = 0;
   } else if (slotType === "Evening Slot Booked") {
     startHours = 18; startMinutes = 45;
     endHours = 22; endMinutes = 0;
@@ -111,7 +111,7 @@ app.post('/submit', (req, res) => {
   if (!slot_type) {
     return res.status(403).json({
       status: 'error',
-      message: 'Appointments are only accepted between 8:30 AM - 4:00 PM or 4:30 PM - 10:00 PM IST'
+      message: 'Appointments are only accepted between 8:30 AM - 2:00 PM or 4:30 PM - 10:00 PM IST'
     });
   }
 
