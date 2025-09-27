@@ -43,7 +43,7 @@ function getSlotType() {
   const totalMinutesIST = totalMinutesUTC + istOffset;
 
   const morningStart = 8 * 60 + 30;  // 08:30 AM
-  const morningEnd = 15 * 60 + 30;   // 02:00 PM
+  const morningEnd = 16 * 60;   // 02:00 PM
   const eveningStart = 16 * 60 + 30; // 04:30 PM
   const eveningEnd = 22 * 60;        // 10:00 PM
 
@@ -65,7 +65,7 @@ function getClinicVisitTime(slotType, tokenNumber) {
     startTime = new Date();
     startTime.setHours(10, 45, 0, 0); // 10:45 AM
     endTime = new Date();
-    endTime.setHours(14, 0, 0, 0); // 2:00 PM
+    endTime.setHours(16, 0, 0, 0); // 2:00 PM
   } else if (slotType === "Evening Slot Booked") {
     startTime = new Date();
     startTime.setHours(18, 45, 0, 0); // 6:45 PM
