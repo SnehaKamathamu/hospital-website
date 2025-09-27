@@ -538,7 +538,7 @@ function submitFeedback() {
     .then(data => {
         if (data.status === "success") {
             alert(`✅ Appointment booked successfully!
-Your Appointment Number: ${data.appointmentNumber}
+Your Appointment Token Number: ${data.appointmentNumber}
 ${data.slot_type}
 🕒 Clinic Visit Time: ${data.clinicTime}`);
             document.getElementById("feedbackForm").reset();
@@ -556,11 +556,13 @@ ${data.slot_type}
 
 
 
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="script.js"></script>
 
 </body>
 </html>
+
 
 
 
