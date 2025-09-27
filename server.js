@@ -139,7 +139,7 @@ function getSlotType() {
   const totalMinutesIST = totalMinutesUTC + istOffset;
 
   const morningStart = 8 * 60 + 30;  // 08:30 AM
-  const morningEnd = 14 * 60 + 30;   // 02:00 PM
+  const morningEnd = 15 * 60 + 30;   // 02:00 PM
   const eveningStart = 16 * 60 + 30; // 04:30 PM
   const eveningEnd = 22 * 60;        // 10:00 PM
 
