@@ -31,8 +31,6 @@ const db = mysql.createPool({
   }
 });
 
-
-
 db.getConnection((err, connection) => {
   if (err) {
     console.error('❌ MySQL connection failed:', err);
@@ -60,7 +58,13 @@ app.post('/submit', (req, res) => {
             console.error('❌ Error inserting feedback:', err);
             return res.status(500).json({ status: 'error', message: 'Database error' });
         }
-        res.json({ status: 'success', message: 'Feedback saved!' });
+
+        // ✅ return appointment number (auto-increment id)
+        res.json({ 
+            status: 'success', 
+            message: 'Feedback saved!',
+            appointmentNumber: result.insertId 
+        });
     });
 });
 
