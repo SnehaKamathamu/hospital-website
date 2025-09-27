@@ -139,7 +139,7 @@ function getSlotType() {
   const totalMinutesIST = totalMinutesUTC + istOffset;
 
   const morningStart = 8 * 60 + 30;  // 08:30 AM
-  const morningEnd = 15 * 60 + 30;   // 02:00 PM
+  const morningEnd = 14 * 60 + 30;   // 02:00 PM
   const eveningStart = 16 * 60 + 30; // 04:30 PM
   const eveningEnd = 22 * 60;        // 10:00 PM
 
@@ -154,6 +154,7 @@ function getSlotType() {
 
 // Helper: assign clinic visit time
 function getClinicVisitTime(slotType, tokenNumber) {
+  const now = new Date();
   let startTime, endTime, maxAppointments = 40;
 
   if (slotType === "Morning Slot Booked") {
@@ -173,12 +174,17 @@ function getClinicVisitTime(slotType, tokenNumber) {
   const totalMinutes = (endTime - startTime) / (1000 * 60); // total clinic minutes
   const interval = Math.floor(totalMinutes / maxAppointments); // per patient
 
-  let visitTime;
+  // Adjust startTime to current time if booking after clinic opening
+  if (now > startTime) {
+    startTime = now;
+  }
 
+  let visitTime;
   if (tokenNumber > maxAppointments) {
     visitTime = endTime; // cap at clinic closing time
   } else {
     visitTime = new Date(startTime.getTime() + interval * (tokenNumber - 1) * 60000);
+    if (visitTime > endTime) visitTime = endTime; // never exceed closing
   }
 
   const hours = visitTime.getHours().toString().padStart(2, "0");
@@ -235,4 +241,3 @@ app.post('/submit', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
